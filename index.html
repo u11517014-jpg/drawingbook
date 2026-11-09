@@ -13,106 +13,154 @@
 
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-color: #2c2c2c;
+            background-color: #1e1e1e;
             color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .book-container {
             position: relative;
-            width: 90%;
-            max-width: 800px;
-            background-color: #1a1a1a;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 95%;
+            max-width: 1200px;
+            background-color: #121212;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 24px;
         }
 
         .image-wrapper {
             position: relative;
             width: 100%;
-            max-height: 500px;
+            height: 75vh;
+            max-height: 700px;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #000;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
         }
 
         .image-wrapper img {
-            max-width: 100%;
-            max-height: 500px;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
+        }
+
+        /* 右上角控制選單容器 */
+        .top-right-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 朗讀本頁按鈕 */
+        .speech-btn-topright {
+            background-color: rgba(255, 152, 0, 0.9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+
+        .speech-btn-topright:hover {
+            background-color: rgba(245, 124, 0, 1);
+            transform: scale(1.05);
+        }
+
+        .speech-btn-topright:active {
+            transform: scale(0.95);
+        }
+
+        /* 圓形背景音樂按鈕 */
+        .music-btn-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(117, 117, 117, 0.8); /* 預設關閉為灰色 */
+            color: white;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+        }
+
+        .music-btn-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .music-btn-circle:active {
+            transform: scale(0.93);
+        }
+
+        /* 音樂開啟時的樣式 (藍色) */
+        .music-btn-circle.active {
+            background-color: rgba(33, 150, 243, 0.9);
         }
 
         .controls {
             margin-top: 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
+        button.page-btn {
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             background-color: #4CAF50;
             color: white;
             transition: background-color 0.2s, transform 0.1s;
         }
 
-        button:hover {
+        button.page-btn:hover {
             background-color: #45a049;
         }
 
-        button:active {
-            transform: scale(0.98);
+        button.page-btn:active {
+            transform: scale(0.96);
         }
 
-        button:disabled {
-            background-color: #555;
+        button.page-btn:disabled {
+            background-color: #444;
+            color: #888;
             cursor: not-allowed;
         }
 
         .page-info {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            min-width: 80px;
+            min-width: 100px;
             text-align: center;
-        }
-
-        .audio-controls {
-            margin-top: 15px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .speech-btn {
-            background-color: #ff9800;
-        }
-
-        .speech-btn:hover {
-            background-color: #f57c00;
-        }
-
-        .toggle-btn {
-            background-color: #2196F3;
-        }
-
-        .toggle-btn.off {
-            background-color: #757575;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -121,20 +169,19 @@
 <div class="book-container">
     <!-- 繪本圖片區域 -->
     <div class="image-wrapper">
+        <!-- 右上角控制區：朗讀按鈕 + 圓形音樂按鈕 -->
+        <div class="top-right-controls">
+            <button class="speech-btn-topright" onclick="playSpeech()">🔊 朗讀本頁</button>
+            <button id="music-btn" class="music-btn-circle" onclick="toggleMusic()" title="背景音樂">🎵</button>
+        </div>
         <img id="book-img" src="" alt="繪本頁面">
     </div>
 
     <!-- 頁碼與換頁按鈕 -->
     <div class="controls">
-        <button id="prev-btn" onclick="changePage(-1)">上一頁</button>
+        <button id="prev-btn" class="page-btn" onclick="changePage(-1)">上一頁</button>
         <span class="page-info" id="page-number">0 / 19</span>
-        <button id="next-btn" onclick="changePage(1)">下一頁</button>
-    </div>
-
-    <!-- 音效與語音控制區 -->
-    <div class="audio-controls">
-        <button id="speech-btn" class="speech-btn" onclick="playSpeech()">🔊 朗讀本頁</button>
-        <button id="music-btn" class="toggle-btn" onclick="toggleMusic()">背景音樂：開啟</button>
+        <button id="next-btn" class="page-btn" onclick="changePage(1)">下一頁</button>
     </div>
 </div>
 
@@ -145,9 +192,8 @@
 <script>
     const totalPages = 20;
     let currentPage = 0;
-    let isMusicEnabled = true;
+    let isMusicEnabled = false; // 一開始載入網頁時預設「不播放」背景音樂
 
-    // 單層 assets 資料夾路徑
     const basePath = 'assets';
 
     const imgElement = document.getElementById('book-img');
@@ -157,6 +203,7 @@
 
     const speechPlayer = document.getElementById('speech-player');
     const musicPlayer = document.getElementById('music-player');
+    const musicBtn = document.getElementById('music-btn');
 
     // 載入指定頁面
     function loadPage(page) {
@@ -169,43 +216,56 @@
         // 2. 更新頁碼
         pageNumberElement.innerText = `${currentPage} / ${totalPages - 1}`;
 
-        // 3. 按鈕狀態
+        // 3. 按鈕啟用狀態
         prevBtn.disabled = (currentPage === 0);
         nextBtn.disabled = (currentPage === totalPages - 1);
 
-        // 4. 切換頁面時停止上一頁朗讀
+        // 4. 切換頁面時停止朗讀並重置背景音樂音量
         speechPlayer.pause();
         speechPlayer.currentTime = 0;
+        musicPlayer.volume = 1.0;
 
-        // 5. 換頁自動播放背景音樂 mp3
+        // 5. 若背景音樂有開啟，換頁時才自動播放該頁音樂
         if (isMusicEnabled) {
             musicPlayer.src = `${basePath}/music/music${currentPage}.mp3`;
             musicPlayer.play().catch(e => {
-                console.log("瀏覽器限制自動播放，請點擊頁面任意處後播放：", e);
+                console.log("瀏覽器限制自動播放：", e);
             });
+        } else {
+            musicPlayer.pause();
         }
     }
 
-    // 點擊按鈕手動朗讀本頁 mp3
+    // 朗讀本頁並自動調低背景音樂音量
     function playSpeech() {
         speechPlayer.src = `${basePath}/speech/speech${currentPage}.mp3`;
+        
+        // 若背景音樂播放中，降低音樂音量至 20%
+        if (isMusicEnabled) {
+            musicPlayer.volume = 0.2;
+        }
+
         speechPlayer.play().catch(e => {
             console.log("語音播放失敗：", e);
+            musicPlayer.volume = 1.0;
         });
     }
 
-    // 切換音樂自動播放狀態
+    // 當朗讀結束時，恢復背景音樂音量為 100%
+    speechPlayer.onended = () => {
+        musicPlayer.volume = 1.0;
+    };
+
+    // 切換背景音樂開關 (🎵 圓形按鈕)
     function toggleMusic() {
         isMusicEnabled = !isMusicEnabled;
-        const btn = document.getElementById('music-btn');
         if (isMusicEnabled) {
-            btn.innerText = "背景音樂：開啟";
-            btn.classList.remove('off');
+            musicBtn.classList.add('active'); // 亮起藍色
             musicPlayer.src = `${basePath}/music/music${currentPage}.mp3`;
+            musicPlayer.volume = 1.0;
             musicPlayer.play().catch(e => {});
         } else {
-            btn.innerText = "背景音樂：關閉";
-            btn.classList.add('off');
+            musicBtn.classList.remove('active'); // 恢復灰色
             musicPlayer.pause();
         }
     }
